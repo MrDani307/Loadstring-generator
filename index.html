@@ -8,7 +8,7 @@
         :root {
             --primary: #00ff88; 
             --bg: #050505; 
-            --card: rgba(26, 26, 26, 0.85); 
+            --card: rgba(26, 26, 26, 0.65); 
             --text: #fff; 
             --accent: #00d4ff; 
             --err: #ff4444;
@@ -18,11 +18,9 @@
             --glow-color: rgba(0, 255, 136, 0.1);
         }
 
-        /* Анимированные темы с полным переопределением градиентов и теней */
         body.theme-emerald { 
             --primary: #00ff88; 
             --accent: #0088ff; 
-            --bg-anim: linear-gradient(120deg, #051a10, #050505, #0a2015); 
             --grad: linear-gradient(45deg, #00ff88, #0088ff);
             --shadow-color: rgba(0, 255, 136, 0.2);
             --glow-color: rgba(0, 255, 136, 0.1);
@@ -30,7 +28,6 @@
         body.theme-ocean { 
             --primary: #00d4ff; 
             --accent: #0044ff; 
-            --bg-anim: linear-gradient(120deg, #05101a, #050505, #0a1525); 
             --grad: linear-gradient(45deg, #00d4ff, #0044ff);
             --shadow-color: rgba(0, 212, 255, 0.2);
             --glow-color: rgba(0, 212, 255, 0.1);
@@ -38,7 +35,6 @@
         body.theme-sunset { 
             --primary: #ffcc00; 
             --accent: #ff4400; 
-            --bg-anim: linear-gradient(120deg, #1a1505, #050505, #251005); 
             --grad: linear-gradient(45deg, #ffcc00, #ff4400);
             --shadow-color: rgba(255, 204, 0, 0.2);
             --glow-color: rgba(255, 204, 0, 0.1);
@@ -46,7 +42,6 @@
         body.theme-royal { 
             --primary: #bd93f9; 
             --accent: #ff79c6; 
-            --bg-anim: linear-gradient(120deg, #15051a, #050505, #200a25); 
             --grad: linear-gradient(45deg, #bd93f9, #ff79c6);
             --shadow-color: rgba(189, 147, 249, 0.2);
             --glow-color: rgba(189, 147, 249, 0.1);
@@ -55,11 +50,13 @@
         body.pc-mode { --container-w: 900px; }
         body.mobile-mode { --container-w: 100%; }
 
-        @keyframes gradientBG { 
-            0% { background-position: 0% 50%; } 
-            50% { background-position: 100% 50%; } 
-            100% { background-position: 0% 50%; } 
+        @keyframes floatBlob { 
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); } 
+            33% { transform: translate(15vw, 15vh) scale(1.2) rotate(90deg); }
+            66% { transform: translate(-10vw, 20vh) scale(0.8) rotate(180deg); }
+            100% { transform: translate(0, 0) scale(1) rotate(360deg); } 
         }
+
         @keyframes glow { 
             0%, 100% { filter: drop-shadow(0 0 5px var(--primary)); } 
             50% { filter: drop-shadow(0 0 15px var(--accent)); } 
@@ -69,21 +66,60 @@
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        * { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; }
+        * { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
         html, body { min-height: 100vh; margin: 0; overflow-x: hidden; }
+        
         body { 
             display: flex; justify-content: center; padding: 20px; 
-            background: var(--bg-anim); background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            background: var(--bg); 
             color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif;
+            position: relative;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        input, select, pre {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        .live-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; overflow: hidden; background: #050505;
+        }
+        .blob {
+            position: absolute; border-radius: 50%;
+            filter: blur(90px); 
+            opacity: 0.55;
+            animation: floatBlob 25s infinite ease-in-out;
+        }
+        .blob-1 {
+            width: 55vw; height: 55vw; background: var(--primary);
+            top: -10%; left: -10%;
+        }
+        .blob-2 {
+            width: 65vw; height: 65vw; background: var(--accent);
+            bottom: -15%; right: -10%;
+            animation-duration: 30s; animation-direction: reverse;
+        }
+        .blob-3 {
+            width: 45vw; height: 45vw; background: var(--grad);
+            top: 35%; left: 25%;
+            animation-duration: 35s; animation-delay: -5s;
         }
 
         .container { 
             width: 100%; max-width: var(--container-w); 
-            background: var(--card); backdrop-filter: blur(20px);
+            background: var(--card); backdrop-filter: blur(25px); 
+            -webkit-backdrop-filter: blur(25px);
             padding: 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6); animation: fadeIn 0.5s ease;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.02); 
+            animation: fadeIn 0.5s ease; position: relative; z-index: 10;
         }
 
         h2 { 
@@ -97,10 +133,10 @@
             background: rgba(255,255,255,0.05); padding: 10px; border-radius: 20px; margin-bottom: 20px;
         }
         select { 
-            background: #111; color: #fff; border: 1px solid #444; 
+            background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.1); 
             padding: 8px 12px; border-radius: 12px; font-size: 11px; cursor: pointer; outline: none; 
         }
-        select:hover { border-color: var(--primary); }
+        select:hover { border-color: var(--primary); background: rgba(0,0,0,0.8); }
 
         .input-box { margin-bottom: 15px; }
         .input-box label { 
@@ -126,7 +162,7 @@
         .btn-a { background: #fff; color: #000; }
         .btn-u { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.05); }
         .btn-e { background: var(--err); color: #fff; }
-        button:hover { transform: translateY(-3px); filter: brightness(1.1); }
+        button:hover { transform: translateY(-3px); filter: brightness(1.1); box-shadow: 0 8px 20px var(--shadow-color); }
 
         .label-sep { 
             font-size: 11px; color: var(--primary); margin: 35px 0 15px; 
@@ -138,6 +174,7 @@
             background: rgba(255,255,255,0.03); padding: 16px; border-radius: 20px; margin-bottom: 12px; 
             border: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;
             cursor: pointer; animation: fadeIn 0.3s ease forwards;
+            backdrop-filter: blur(10px);
         }
         .card:hover { border-color: var(--primary); background: rgba(255,255,255,0.07); transform: translateX(5px); }
 
@@ -156,9 +193,8 @@
 
         .overlay { 
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
-            padding: 20px; backdrop-filter: blur(25px); overflow-y: auto; z-index: 1000;
+            padding: 20px; backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); overflow-y: auto; z-index: 1000;
         }
-        /* ИСПРАВЛЕНИЕ Z-INDEX: Теперь предпросмотр поверх папок */
         #viewOver { z-index: 3000; }
 
         .over-content { 
@@ -166,8 +202,8 @@
             animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
         pre { 
-            background: #000; color: var(--primary); padding: 20px; border-radius: 15px; 
-            font-size: 12px; border: 1px solid #333; overflow-x: auto; 
+            background: rgba(0,0,0,0.7); color: var(--primary); padding: 20px; border-radius: 15px; 
+            font-size: 12px; border: 1px solid rgba(255,255,255,0.1); overflow-x: auto; 
             white-space: pre-wrap; word-break: break-all; 
         }
 
@@ -181,6 +217,12 @@
     </style>
 </head>
 <body class="mobile-mode theme-emerald">
+
+<div class="live-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
 
 <div id="toast" class="toast"></div>
 
@@ -306,7 +348,6 @@
 
     let scripts = JSON.parse(localStorage.getItem('ls_gen_scripts_v7') || "[]");
     let folders = JSON.parse(localStorage.getItem('ls_gen_folders_v7') || "[]");
-    // Английский язык по умолчанию
     let lang = localStorage.getItem('ls_gen_lang_v7') || 'en'; 
     let editingId = null;
 
@@ -367,7 +408,10 @@
     }
 
     function toggleF() { 
-        document.getElementById('iFol').disabled = !document.getElementById('uFol').checked; 
+        const isEnabled = document.getElementById('uFol').checked;
+        const iFol = document.getElementById('iFol');
+        iFol.disabled = !isEnabled; 
+        if(!isEnabled) iFol.value = ""; // ОЧИСТКА ПОЛЯ ПРИ ВЫКЛЮЧЕНИИ
     }
 
     function processCode(raw, isStrict, isAuto) {
@@ -387,6 +431,7 @@
 
     function save() {
         const raw = document.getElementById('iUrl').value;
+        // ТЕПЕРЬ БЕРЕТ АКТУАЛЬНЫЕ ЧЕКБОКСЫ
         const code = processCode(raw, document.getElementById('strict').checked, document.getElementById('als').checked);
         if(!code) return;
         
@@ -514,6 +559,7 @@
 
     function quickAdd() { 
         const raw = document.getElementById('qUrl').value; 
+        // ИСПРАВЛЕННЫЙ QUICK ADD (БЕРЕТ СВОИ ЧЕКБОКСЫ)
         const code = processCode(raw, document.getElementById('qStrict').checked, document.getElementById('qAls').checked); 
         if(!code) return; 
         
@@ -584,6 +630,7 @@
     }
 
     function copyI() { 
+        // ИСПРАВЛЕННЫЙ COPY (БЕРЕТ АКТУАЛЬНЫЕ ЧЕКБОКСЫ)
         const c = processCode(document.getElementById('iUrl').value, document.getElementById('strict').checked, document.getElementById('als').checked); 
         if(c) { 
             navigator.clipboard.writeText(c); 
@@ -591,7 +638,6 @@
         } 
     }
 
-    // Export & Import Logic
     function exportData() {
         const data = { scripts, folders, v: 7, exportDate: new Date().toISOString() };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -624,7 +670,6 @@
         reader.readAsText(file);
     }
 
-    // Инициализация
     applyL(); 
     setTheme(); 
     render();

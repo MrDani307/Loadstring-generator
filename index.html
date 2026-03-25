@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Auto Loadstring Ultimate</title>
+    <style>
+        :root {
+            --primary: #00ff88; 
+            --bg: #050505; 
+            --card: rgba(26, 26, 26, 0.85); 
+            --text: #fff; 
+            --accent: #00d4ff; 
+            --err: #ff4444;
+            --container-w: 500px;
+            --grad: linear-gradient(45deg, var(--primary), var(--accent));
+            --shadow-color: rgba(0, 255, 136, 0.2);
+            --glow-color: rgba(0, 255, 136, 0.1);
+        }
+
+        /* Анимированные темы с полным переопределением градиентов и теней */
+        body.theme-emerald { 
+            --primary: #00ff88; 
+            --accent: #0088ff; 
+            --bg-anim: linear-gradient(120deg, #051a10, #050505, #0a2015); 
+            --grad: linear-gradient(45deg, #00ff88, #0088ff);
+            --shadow-color: rgba(0, 255, 136, 0.2);
+            --glow-color: rgba(0, 255, 136, 0.1);
+        }
+        body.theme-ocean { 
+            --primary: #00d4ff; 
+            --accent: #0044ff; 
+            --bg-anim: linear-gradient(120deg, #05101a, #050505, #0a1525); 
+            --grad: linear-gradient(45deg, #00d4ff, #0044ff);
+            --shadow-color: rgba(0, 212, 255, 0.2);
+            --glow-color: rgba(0, 212, 255, 0.1);
+        }
+        body.theme-sunset { 
+            --primary: #ffcc00; 
+            --accent: #ff4400; 
+            --bg-anim: linear-gradient(120deg, #1a1505, #050505, #251005); 
+            --grad: linear-gradient(45deg, #ffcc00, #ff4400);
+            --shadow-color: rgba(255, 204, 0, 0.2);
+            --glow-color: rgba(255, 204, 0, 0.1);
+        }
+        body.theme-royal { 
+            --primary: #bd93f9; 
+            --accent: #ff79c6; 
+            --bg-anim: linear-gradient(120deg, #15051a, #050505, #200a25); 
+            --grad: linear-gradient(45deg, #bd93f9, #ff79c6);
+            --shadow-color: rgba(189, 147, 249, 0.2);
+            --glow-color: rgba(189, 147, 249, 0.1);
+        }
+
+        body.pc-mode { --container-w: 900px; }
+        body.mobile-mode { --container-w: 100%; }
+
+        @keyframes gradientBG { 
+            0% { background-position: 0% 50%; } 
+            50% { background-position: 100% 50%; } 
+            100% { background-position: 0% 50%; } 
+        }
+        @keyframes glow { 
+            0%, 100% { filter: drop-shadow(0 0 5px var(--primary)); } 
+            50% { filter: drop-shadow(0 0 15px var(--accent)); } 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        * { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-sizing: border-box; }
+        
+        html, body { min-height: 100vh; margin: 0; overflow-x: hidden; }
+        body { 
+            display: flex; justify-content: center; padding: 20px; 
+            background: var(--bg-anim); background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .container { 
+            width: 100%; max-width: var(--container-w); 
+            background: var(--card); backdrop-filter: blur(20px);
+            padding: 25px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6); animation: fadeIn 0.5s ease;
+        }
+
+        h2 { 
+            text-align: center; font-size: 24px; font-weight: 900;
+            background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: glow 3s infinite; margin-bottom: 25px; letter-spacing: 1px;
+        }
+
+        .settings { 
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; 
+            background: rgba(255,255,255,0.05); padding: 10px; border-radius: 20px; margin-bottom: 20px;
+        }
+        select { 
+            background: #111; color: #fff; border: 1px solid #444; 
+            padding: 8px 12px; border-radius: 12px; font-size: 11px; cursor: pointer; outline: none; 
+        }
+        select:hover { border-color: var(--primary); }
+
+        .input-box { margin-bottom: 15px; }
+        .input-box label { 
+            font-size: 10px; color: var(--primary); margin-left: 10px; 
+            display: block; margin-bottom: 5px; text-transform: uppercase; font-weight: bold; 
+        }
+        input { 
+            width: 100%; padding: 14px; border-radius: 15px; border: 2px solid rgba(255,255,255,0.05); 
+            background: rgba(0,0,0,0.4); color: #fff; font-size: 14px; outline: none;
+        }
+        input:focus { 
+            border-color: var(--primary); background: rgba(0,0,0,0.6); 
+            box-shadow: 0 0 15px var(--glow-color); 
+        }
+
+        .grid-main { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        button { 
+            padding: 14px; border: none; border-radius: 15px; font-weight: 800; 
+            cursor: pointer; text-transform: uppercase; font-size: 11px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-p { background: var(--grad); color: #000; box-shadow: 0 4px 15px var(--shadow-color); }
+        .btn-a { background: #fff; color: #000; }
+        .btn-u { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.05); }
+        .btn-e { background: var(--err); color: #fff; }
+        button:hover { transform: translateY(-3px); filter: brightness(1.1); }
+
+        .label-sep { 
+            font-size: 11px; color: var(--primary); margin: 35px 0 15px; 
+            display: flex; align-items: center; gap: 10px; font-weight: 900; text-transform: uppercase; 
+        }
+        .label-sep::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+
+        .card { 
+            background: rgba(255,255,255,0.03); padding: 16px; border-radius: 20px; margin-bottom: 12px; 
+            border: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; animation: fadeIn 0.3s ease forwards;
+        }
+        .card:hover { border-color: var(--primary); background: rgba(255,255,255,0.07); transform: translateX(5px); }
+
+        .icon-btn { font-size: 17px; cursor: pointer; padding: 8px; border-radius: 10px; transition: 0.2s; color: #888; }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); color: var(--primary); }
+        .star.active { color: #ffcc00; filter: drop-shadow(0 0 8px #ffcc00); }
+
+        .quick-add-box { 
+            background: rgba(0,0,0,0.3); padding: 20px; border-radius: 22px; 
+            border: 1px dashed var(--primary); margin-bottom: 25px; 
+        }
+        .q-in {
+            padding: 12px; font-size: 12px; background: rgba(255,255,255,0.05); 
+            border: none; width: 100%; color: #fff; border-radius: 12px;
+        }
+
+        .overlay { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); 
+            padding: 20px; backdrop-filter: blur(25px); overflow-y: auto; z-index: 1000;
+        }
+        /* ИСПРАВЛЕНИЕ Z-INDEX: Теперь предпросмотр поверх папок */
+        #viewOver { z-index: 3000; }
+
+        .over-content { 
+            width: 100%; max-width: 600px; margin: auto; 
+            animation: fadeIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        pre { 
+            background: #000; color: var(--primary); padding: 20px; border-radius: 15px; 
+            font-size: 12px; border: 1px solid #333; overflow-x: auto; 
+            white-space: pre-wrap; word-break: break-all; 
+        }
+
+        .toast { 
+            position: fixed; bottom: 30px; left: 50%; transform: translate(-50%, 150px); 
+            background: var(--grad); color: #000; padding: 12px 35px; border-radius: 50px; 
+            font-weight: 900; z-index: 5000; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .toast.active { transform: translate(-50%, 0); }
+    </style>
+</head>
+<body class="mobile-mode theme-emerald">
+
+<div id="toast" class="toast"></div>
+
+<div class="container">
+    <h2 id="ui-title">AUTO LOADSTRING</h2>
+
+    <div class="settings">
+        <select id="lang" onchange="setLang()">
+            <option value="en">English 🇺🇸</option>
+            <option value="ru">Русский 🇷🇺</option>
+        </select>
+        <select id="theme" onchange="setTheme()">
+            <option value="emerald">Emerald</option>
+            <option value="ocean">Ocean</option>
+            <option value="sunset">Sunset</option>
+            <option value="royal">Royal</option>
+        </select>
+        <select id="mode" onchange="setTheme()">
+            <option value="mobile-mode">Mobile</option>
+            <option value="pc-mode">PC Mode</option>
+        </select>
+    </div>
+
+    <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; font-size: 11px; color: #aaa; font-weight: bold;">
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px;"><input type="checkbox" id="strict" checked> <span id="ui-strict">Link Only</span></label>
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px;"><input type="checkbox" id="als" checked> <span id="ui-als">Auto Loadstring</span></label>
+        <label style="cursor:pointer; display:flex; align-items:center; gap:6px;"><input type="checkbox" id="uFol" checked onchange="toggleF()"> <span id="ui-fol-toggle">Folders</span></label>
+    </div>
+
+    <div class="input-box">
+        <label id="l-fol">Folder:</label>
+        <input type="text" id="iFol" list="fList">
+    </div>
+    <div class="input-box">
+        <label id="l-nam">Name:</label>
+        <input type="text" id="iNam">
+    </div>
+    <div class="input-box">
+        <label id="l-url">URL / Code:</label>
+        <input type="text" id="iUrl">
+    </div>
+
+    <div class="grid-main">
+        <button class="btn-p" onclick="save()" id="b-sav">💾 Save</button>
+        <button class="btn-e" onclick="cancelEdit()" id="b-can" style="display:none;">❌ Cancel</button>
+        <button class="btn-u" onclick="clearI()" id="b-clr">🧹 Clear</button>
+        <button class="btn-a" onclick="copyI()" id="b-cop">✂️ Copy</button>
+        <button class="btn-u" onclick="openMgr()" id="b-fol-mgr">📂 Folders</button>
+        <button class="btn-u" onclick="exportData()" id="b-exp">📦 Backup</button>
+        <button class="btn-u" onclick="document.getElementById('fileIn').click()" style="grid-column: span 2;">📥 Import JSON</button>
+        <input type="file" id="fileIn" style="display:none" onchange="importData(event)">
+    </div>
+
+    <input type="text" id="search" oninput="render()" style="margin-top:25px; background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.1);">
+
+    <div id="content"></div>
+</div>
+
+<div id="viewOver" class="overlay">
+    <div class="over-content">
+        <h3 id="viewName" style="color:var(--primary); text-align:center; text-transform: uppercase;">Preview</h3>
+        <pre id="viewCode"></pre>
+        <button class="btn-u" onclick="document.getElementById('viewOver').style.display='none'" style="width:100%; margin-top:15px;" id="b-cls-view">Close</button>
+    </div>
+</div>
+
+<div id="mgrOver" class="overlay">
+    <div class="over-content">
+        <h3 id="ui-mgr-h" style="text-align:center; color: var(--primary);">FOLDERS</h3>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <input type="text" id="newF" style="flex:1">
+            <button class="btn-p" onclick="addF()" id="b-cre">Create</button>
+        </div>
+        <div id="mgrList"></div>
+        <button class="btn-u" onclick="closeO()" style="width:100%; margin-top:15px;" id="b-cls-mgr">Close</button>
+    </div>
+</div>
+
+<div id="folOver" class="overlay">
+    <div class="over-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <button class="btn-u" onclick="closeO()" id="b-bak">← Back</button>
+            <b id="activeF" style="color:var(--primary); font-size: 18px; text-transform: uppercase; letter-spacing: 1px;"></b>
+        </div>
+        
+        <div class="quick-add-box">
+            <div id="q-title" style="font-size: 10px; color: var(--primary); margin-bottom: 15px; font-weight: 900; letter-spacing: 1px;">QUICK ADD</div>
+            <div style="display: flex; gap: 15px; margin-bottom: 12px; font-size: 10px; color: #888;">
+                <label style="cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" id="qStrict" checked> <span id="ui-q-strict">Link Only</span></label>
+                <label style="cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" id="qAls" checked> <span id="ui-q-als">Auto Loadstring</span></label>
+            </div>
+            <input type="text" id="qNam" class="q-in" style="margin-bottom:8px;">
+            <input type="text" id="qUrl" class="q-in">
+            <button class="btn-p" onclick="quickAdd()" id="b-qadd" style="width:100%; margin-top:12px;">Add Here</button>
+        </div>
+        <div id="folScripts"></div>
+    </div>
+</div>
+
+<datalist id="fList"></datalist>
+
+<script>
+    const T = {
+        ru: {
+            sav: "💾 Сохранить", upd: "🔄 Обновить", can: "❌ Отмена", cop: "✂️ Копия", clr: "🧹 Очистить", fol: "📂 Папки", exp: "📦 Бэкап",
+            search: "Поиск скриптов...", favs: "ИЗБРАННОЕ ★", folders: "ПАПКИ", noFol: "Без папки",
+            lFol: "Папка:", lNam: "Название:", lUrl: "URL / Код:", mgrH: "Управление папками",
+            cre: "Создать", cls: "Закрыть", bak: "← Назад", tSav: "Сохранено!", tCop: "Скопировано!",
+            confirm: "Удалить?", strict: "Link Only", als: "Auto Loadstring", folTog: "Папки",
+            qTit: "БЫСТРОЕ ДОБАВЛЕНИЕ", qAdd: "Добавить сюда",
+            pHolF: "Выберите или введите...", pHolN: "Имя скрипта", pHolU: "Вставьте ссылку или код", pHolNewF: "Имя новой папки..."
+        },
+        en: {
+            sav: "💾 Save", upd: "🔄 Update", can: "❌ Cancel", cop: "✂️ Copy", clr: "🧹 Clear", fol: "📂 Folders", exp: "📦 Backup",
+            search: "Search scripts...", favs: "FAVORITES ★", folders: "FOLDERS", noFol: "No Folder",
+            lFol: "Folder:", lNam: "Name:", lUrl: "Source URL:", mgrH: "Folder Manager",
+            cre: "Create", cls: "Close", bak: "← Back", tSav: "Saved!", tCop: "Copied!",
+            confirm: "Delete?", strict: "Link Only", als: "Auto Loadstring", folTog: "Folders",
+            qTit: "QUICK ADD", qAdd: "Add Here",
+            pHolF: "Select or type...", pHolN: "Script name", pHolU: "Paste URL or Code", pHolNewF: "Folder name..."
+        }
+    };
+
+    let scripts = JSON.parse(localStorage.getItem('ls_gen_scripts_v7') || "[]");
+    let folders = JSON.parse(localStorage.getItem('ls_gen_folders_v7') || "[]");
+    // Английский язык по умолчанию
+    let lang = localStorage.getItem('ls_gen_lang_v7') || 'en'; 
+    let editingId = null;
+
+    function msg(txt) {
+        const toast = document.getElementById('toast');
+        toast.innerText = txt; 
+        toast.classList.add('active');
+        setTimeout(() => toast.classList.remove('active'), 2000);
+    }
+
+    function setLang() {
+        lang = document.getElementById('lang').value;
+        localStorage.setItem('ls_gen_lang_v7', lang);
+        applyL(); 
+        render();
+    }
+
+    function applyL() {
+        const d = T[lang];
+        document.getElementById('lang').value = lang;
+        
+        document.getElementById('search').placeholder = d.search;
+        document.getElementById('l-fol').innerText = d.lFol;
+        document.getElementById('l-nam').innerText = d.lNam;
+        document.getElementById('l-url').innerText = d.lUrl;
+        document.getElementById('ui-mgr-h').innerText = d.mgrH;
+        document.getElementById('ui-strict').innerText = d.strict;
+        document.getElementById('ui-q-strict').innerText = d.strict;
+        document.getElementById('ui-als').innerText = d.als;
+        document.getElementById('ui-q-als').innerText = d.als;
+        document.getElementById('ui-fol-toggle').innerText = d.folTog;
+        
+        document.getElementById('b-sav').innerText = editingId ? d.upd : d.sav;
+        document.getElementById('b-can').innerText = d.can;
+        document.getElementById('b-cop').innerText = d.cop;
+        document.getElementById('b-clr').innerText = d.clr;
+        document.getElementById('b-fol-mgr').innerText = d.fol;
+        document.getElementById('b-exp').innerText = d.exp;
+        document.getElementById('b-cre').innerText = d.cre;
+        document.getElementById('b-cls-view').innerText = d.cls;
+        document.getElementById('b-cls-mgr').innerText = d.cls;
+        document.getElementById('b-bak').innerText = d.bak;
+        document.getElementById('b-qadd').innerText = d.qAdd;
+        document.getElementById('q-title').innerText = d.qTit;
+
+        document.getElementById('iFol').placeholder = d.pHolF;
+        document.getElementById('iNam').placeholder = d.pHolN;
+        document.getElementById('iUrl').placeholder = d.pHolU;
+        document.getElementById('newF').placeholder = d.pHolNewF;
+        document.getElementById('qNam').placeholder = d.pHolN;
+        document.getElementById('qUrl').placeholder = d.pHolU;
+    }
+
+    function setTheme() {
+        const t = document.getElementById('theme').value;
+        const m = document.getElementById('mode').value;
+        document.body.className = 'theme-' + t + ' ' + m;
+    }
+
+    function toggleF() { 
+        document.getElementById('iFol').disabled = !document.getElementById('uFol').checked; 
+    }
+
+    function processCode(raw, isStrict, isAuto) {
+        let val = raw.trim(); 
+        if(!val) return null;
+        
+        if(isStrict) {
+            if(val.includes("pastebin.com/") && !val.includes("/raw/")) {
+                val = val.replace("pastebin.com/", "pastebin.com/raw/");
+            }
+            if(val.includes("github.com/") && val.includes("/blob/")) {
+                val = val.replace("github.com/", "raw.githubusercontent.com/").replace("/blob/", "/");
+            }
+        }
+        return isAuto ? `loadstring(game:HttpGet("${val}"))()` : val;
+    }
+
+    function save() {
+        const raw = document.getElementById('iUrl').value;
+        const code = processCode(raw, document.getElementById('strict').checked, document.getElementById('als').checked);
+        if(!code) return;
+        
+        let tag = document.getElementById('uFol').checked ? (document.getElementById('iFol').value.trim() || "No Folder") : "No Folder";
+        
+        if(tag !== "No Folder" && !folders.includes(tag)) {
+            folders.push(tag);
+        }
+        
+        if(editingId) {
+            const s = scripts.find(x => x.id === editingId);
+            Object.assign(s, { name: document.getElementById('iNam').value || "Unnamed", tag, code, raw });
+            cancelEdit();
+        } else {
+            scripts.unshift({ id: Date.now(), name: document.getElementById('iNam').value || "Unnamed", tag, code, raw, fav: false });
+        }
+        
+        sync(); 
+        msg(T[lang].tSav);
+    }
+
+    function sync() {
+        localStorage.setItem('ls_gen_scripts_v7', JSON.stringify(scripts));
+        localStorage.setItem('ls_gen_folders_v7', JSON.stringify(folders));
+        render();
+    }
+
+    function render() {
+        const q = document.getElementById('search').value.toLowerCase();
+        const box = document.getElementById('content'); 
+        box.innerHTML = "";
+        
+        if(!q) {
+            const favs = scripts.filter(s => s.fav);
+            if(favs.length) {
+                box.innerHTML += `<div class="label-sep">${T[lang].favs}</div>`;
+                favs.forEach(s => box.appendChild(createItem(s)));
+            }
+            
+            box.innerHTML += `<div class="label-sep">${T[lang].folders}</div>`;
+            ["No Folder", ...folders].forEach(f => {
+                const count = scripts.filter(s => s.tag === f).length;
+                const div = document.createElement('div'); 
+                div.className = 'card';
+                div.onclick = () => openFol(f);
+                div.innerHTML = `<span>📁 <b>${f === "No Folder" ? T[lang].noFol : f}</b></span> <small style="color:var(--primary)">${count}</small>`;
+                box.appendChild(div);
+            });
+        } else {
+            scripts.filter(s => s.name.toLowerCase().includes(q)).forEach(s => box.appendChild(createItem(s)));
+        }
+        
+        document.getElementById('fList').innerHTML = folders.map(f => `<option value="${f}">`).join('');
+    }
+
+    function createItem(s) {
+        const div = document.createElement('div'); 
+        div.className = 'card';
+        div.onclick = () => { 
+            navigator.clipboard.writeText(s.code); 
+            msg(T[lang].tCop); 
+        };
+        div.innerHTML = `
+            <div style="flex:1; overflow:hidden">
+                <b style="color:var(--primary); display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden">${s.name}</b>
+                <small style="opacity:0.4; font-size:9px; text-transform:uppercase">${s.tag}</small>
+            </div>
+            <div style="display:flex; gap:3px">
+                <span class="icon-btn star ${s.fav?'active':''}" onclick="event.stopPropagation(); toggleFv(${s.id})">★</span>
+                <span class="icon-btn" onclick="event.stopPropagation(); viewS(${s.id})">👁️</span>
+                <span class="icon-btn" onclick="event.stopPropagation(); editS(${s.id})">✏️</span>
+                <span class="icon-btn" onclick="event.stopPropagation(); delS(${s.id})" style="color:var(--err)">🗑️</span>
+            </div>
+        `;
+        return div;
+    }
+
+    function toggleFv(id) { 
+        const s = scripts.find(x => x.id === id); 
+        s.fav = !s.fav; 
+        sync(); 
+    }
+
+    function viewS(id) { 
+        const s = scripts.find(x => x.id === id); 
+        document.getElementById('viewName').innerText = s.name; 
+        document.getElementById('viewCode').innerText = s.raw; 
+        document.getElementById('viewOver').style.display = 'block'; 
+    }
+
+    function editS(id) { 
+        const s = scripts.find(x => x.id === id); 
+        editingId = id; 
+        
+        document.getElementById('iNam').value = s.name; 
+        document.getElementById('iUrl').value = s.raw; 
+        document.getElementById('uFol').checked = s.tag !== "No Folder"; 
+        toggleF(); 
+        
+        document.getElementById('iFol').value = s.tag === "No Folder" ? "" : s.tag; 
+        document.getElementById('b-sav').innerText = T[lang].upd; 
+        document.getElementById('b-can').style.display = 'flex'; 
+        document.getElementById('b-clr').style.display = 'none'; 
+        
+        closeO(); 
+        window.scrollTo({top:0, behavior:'smooth'}); 
+    }
+
+    function cancelEdit() { 
+        editingId = null; 
+        clearI(); 
+        document.getElementById('b-sav').innerText = T[lang].sav; 
+        document.getElementById('b-can').style.display = 'none'; 
+        document.getElementById('b-clr').style.display = 'flex'; 
+    }
+
+    function openFol(f) { 
+        document.getElementById('activeF').innerText = f === "No Folder" ? T[lang].noFol : f; 
+        document.getElementById('activeF').setAttribute('data-real-name', f); 
+        const box = document.getElementById('folScripts'); 
+        box.innerHTML = ""; 
+        scripts.filter(s => s.tag === f).forEach(s => box.appendChild(createItem(s))); 
+        document.getElementById('folOver').style.display = 'block'; 
+    }
+
+    function quickAdd() { 
+        const raw = document.getElementById('qUrl').value; 
+        const code = processCode(raw, document.getElementById('qStrict').checked, document.getElementById('qAls').checked); 
+        if(!code) return; 
+        
+        const tag = document.getElementById('activeF').getAttribute('data-real-name'); 
+        scripts.unshift({ id: Date.now(), name: document.getElementById('qNam').value || "Quick Script", tag, code, raw, fav: false }); 
+        
+        document.getElementById('qNam').value = ""; 
+        document.getElementById('qUrl').value = ""; 
+        sync(); 
+        openFol(tag); 
+    }
+
+    function openMgr() { 
+        document.getElementById('mgrOver').style.display = 'block'; 
+        renderMgr(); 
+    }
+
+    function closeO() { 
+        document.getElementById('folOver').style.display = 'none'; 
+        document.getElementById('mgrOver').style.display = 'none'; 
+    }
+
+    function renderMgr() { 
+        const box = document.getElementById('mgrList'); 
+        box.innerHTML = ""; 
+        folders.forEach(f => { 
+            const div = document.createElement('div'); 
+            div.className = 'card'; 
+            div.style.cursor = 'default'; 
+            div.innerHTML = `<span>${f}</span> <button class="btn-e" onclick="delF('${f}')" style="padding:6px 12px; border-radius:10px; font-size:10px;">DEL</button>`; 
+            box.appendChild(div); 
+        }); 
+    }
+
+    function addF() { 
+        const n = document.getElementById('newF').value.trim(); 
+        if(n && !folders.includes(n) && n !== "No Folder") { 
+            folders.push(n); 
+            sync(); 
+            renderMgr(); 
+        } 
+        document.getElementById('newF').value = ""; 
+    }
+
+    function delF(n) { 
+        if(confirm(T[lang].confirm)) { 
+            scripts.forEach(s => { if(s.tag === n) s.tag = "No Folder"; }); 
+            folders = folders.filter(x => x !== n); 
+            sync(); 
+            renderMgr(); 
+        } 
+    }
+
+    function delS(id) { 
+        if(confirm(T[lang].confirm)) { 
+            scripts = scripts.filter(x => x.id !== id); 
+            sync(); 
+            if(document.getElementById('folOver').style.display === 'block') {
+                openFol(document.getElementById('activeF').getAttribute('data-real-name')); 
+            }
+        } 
+    }
+
+    function clearI() { 
+        document.getElementById('iNam').value = ""; 
+        document.getElementById('iUrl').value = ""; 
+        document.getElementById('iFol').value = ""; 
+    }
+
+    function copyI() { 
+        const c = processCode(document.getElementById('iUrl').value, document.getElementById('strict').checked, document.getElementById('als').checked); 
+        if(c) { 
+            navigator.clipboard.writeText(c); 
+            msg(T[lang].tCop); 
+        } 
+    }
+
+    // Export & Import Logic
+    function exportData() {
+        const data = { scripts, folders, v: 7, exportDate: new Date().toISOString() };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `scripts_backup_${Date.now()}.json`;
+        a.click();
+    }
+
+    function importData(e) {
+        const file = e.target.files[0]; 
+        if(!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const data = JSON.parse(ev.target.result);
+                if(data.scripts) {
+                    scripts = [...data.scripts, ...scripts.filter(s => !data.scripts.some(ds => ds.id === s.id))];
+                }
+                if(data.folders) {
+                    folders = [...new Set([...folders, ...data.folders])];
+                }
+                sync(); 
+                msg("Import Success!");
+            } catch(err) { 
+                msg("Import Error!"); 
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // Инициализация
+    applyL(); 
+    setTheme(); 
+    render();
+</script>
+</body>
+</html>
